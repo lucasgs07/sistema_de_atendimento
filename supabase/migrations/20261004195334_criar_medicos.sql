@@ -1,0 +1,9 @@
+CREATE TABLE medicos(
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nome VARCHAR(50) NOT NULL,
+    rm VARCHAR(10) NOT NULL UNIQUE DEFAULT LPAD(FLOOR(RANDOM() * 100000)::TEXT, 5, '0'),
+    especialidade VARCHAR(50) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'Disponível',
+    data_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT check_status CHECK (status IN ('Disponível', 'Ocupado'))
+);
