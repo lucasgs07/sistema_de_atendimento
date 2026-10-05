@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestão de Médicos - Sistema de Atendimento</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --bg-main: #f1f5f9;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      
+      --status-disp-bg: #dcfce7;
+      --status-disp-text: #166534;
+      --status-ocup-bg: #fef3c7;
+      --status-ocup-text: #92400e;
+      --status-inat-bg: #fee2e2;
+      --status-inat-text: #991b1b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.5;
+      padding-bottom: 3rem;
+    }
+
+    /* Top Navigation / Header */
+    .navbar {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      color: #ffffff;
+      padding: 1.5rem 2rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+    }
+
+    .navbar-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .navbar h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .navbar p {
+      font-size: 0.875rem;
+      color: #94a3b8;
+    }
+
+    /* Container Principal */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.75rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid #f8fafc;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Formulário Grid */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .form-group label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .form-group input, 
+    .form-group select {
+      width: 100%;
+      padding: 0.65rem 0.85rem;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      background-color: #f8fafc;
+      color: var(--text-main);
+      transition: all 0.2s ease;
+    }
+
+    .form-group input:focus, 
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--primary);
+      background-color: #ffffff;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    /* Botão Principal */
+    .btn-submit {
+      background-color: var(--primary);
+      color: #ffffff;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s ease, transform 0.1s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-submit:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn-submit:active {
+      transform: scale(0.98);
+    }
+
+    /* Tabela */
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin-top: 0.5rem;
+    }
+
+    th {
+      background-color: #f8fafc;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.85rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    td {
+      padding: 1rem;
+      font-size: 0.925rem;
+      border-bottom: 1px solid var(--border-color);
+      vertical-align: middle;
+    }
+
+    tbody tr:hover {
+      background-color: #f8fafc;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Badges de Status */
+    .badge {
+      display: inline-block;
+      padding: 0.3rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .badge-disponivel {
+      background-color: var(--status-disp-bg);
+      color: var(--status-disp-text);
+    }
+
+    .badge-ocupado {
+      background-color: var(--status-ocup-bg);
+      color: var(--status-ocup-text);
+    }
+
+    .badge-inativo {
+      background-color: var(--status-inat-bg);
+      color: var(--status-inat-text);
+    }
+
+    /* Seletor de Status na Tabela */
+    .select-status {
+      padding: 0.4rem 0.6rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background-color: #ffffff;
+      color: var(--text-main);
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .select-status:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    /* Estado de Carregamento e Vazio */
+    .empty-state {
+      text-align: center;
+      padding: 2.5rem 1rem;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="navbar">
+    <div class="navbar-container">
+      <div>
+        <h1>Gestão de Médicos</h1>
+        <p>Painel de Controle do Corpo Clínico</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- Formulário de Cadastro -->
+    <section class="card">
+      <h2 class="card-title">
+        Cadastrar Novo Médico
+      </h2>
+      <form id="medicoForm">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="nome">Nome Completo</label>
+            <input type="text" id="nome" required placeholder="Ex: Dr. Carlos Eduardo">
+          </div>
+          <div class="form-group">
+            <label for="rm">RM (Registro Médico)</label>
+            <input type="text" id="rm" required placeholder="Ex: RM123456">
+          </div>
+          <div class="form-group">
+            <label for="especialidade">Especialidade</label>
+            <input type="text" id="especialidade" required placeholder="Ex: Cardiologia">
+          </div>
+          <div class="form-group">
+            <label for="status">Status Inicial</label>
+            <select id="status">
+              <option value="Disponível">Disponível</option>
+              <option value="Ocupado">Ocupado</option>
+              <option value="Inativo">Inativo</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-submit">
+          <span>+ Cadastrar Médico</span>
+        </button>
+      </form>
+    </section>
+
+    <!-- Tabela de Médicos -->
+    <section class="card">
+      <h2 class="card-title">
+        Médicos Cadastrados
+      </h2>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nome</th>
+              <th>RM</th>
+              <th>Especialidade</th>
+              <th>Status Atual</th>
+              <th>Ação</th>
+            </tr>
+          </thead>
+          <tbody id="medicosTableBody">
+            <tr>
+              <td colspan="6" class="empty-state">A carregar lista de médicos...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    const API_URL = '/api/medicos';
+
+    const getHeaders = () => ({ 'Content-Type': 'application/json' });
+
+    // Helper para definir a cor do badge conforme o status
+    function getBadgeClass(status) {
+      const st = (status || '').toLowerCase();
+      if (st === 'disponível' || st === 'disponivel') return 'badge-disponivel';
+      if (st === 'ocupado') return 'badge-ocupado';
+      return 'badge-inativo';
+    }
+
+    // 1. Listar Médicos (GET /api/medicos)
+    async function carregarMedicos() {
+      try {
+        const response = await fetch(API_URL, { headers: getHeaders() });
+        if (!response.ok) throw new Error('Erro ao obter dados do servidor.');
+
+        const medicos = await response.json();
+        renderTabela(medicos);
+      } catch (err) {
+        console.error(err);
+        document.getElementById('medicosTableBody').innerHTML = `
+          <tr>
+            <td colspan="6" class="empty-state" style="color: #dc2626;">
+              Erro ao carregar lista de médicos. Verifique a ligação ao servidor.
+            </td>
+          </tr>`;
+      }
+    }
+
+    // 2. Renderizar linhas na tabela
+    function renderTabela(medicos) {
+      const tbody = document.getElementById('medicosTableBody');
+      tbody.innerHTML = '';
+
+      if (!medicos || medicos.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="empty-state">Nenhum médico cadastrado até ao momento.</td>
+          </tr>`;
+        return;
+      }
+
+      medicos.forEach(medico => {
+        const tr = document.createElement('tr');
+        const badgeClass = getBadgeClass(medico.status);
+
+        tr.innerHTML = `
+          <td><code style="font-size: 0.8rem; color: #64748b;">${medico.id}</code></td>
+          <td><strong>${medico.nome}</strong></td>
+          <td>${medico.rm}</td>
+          <td>${medico.especialidade}</td>
+          <td>
+            <span class="badge ${badgeClass}">
+              ${medico.status}
+            </span>
+          </td>
+          <td>
+            <select class="select-status" onchange="alterarStatus('${medico.id}', this.value)">
+              <option value="Disponível" ${medico.status === 'Disponível' ? 'selected' : ''}>Disponível</option>
+              <option value="Ocupado" ${medico.status === 'Ocupado' ? 'selected' : ''}>Ocupado</option>
+              <option value="Inativo" ${medico.status === 'Inativo' ? 'selected' : ''}>Inativo</option>
+            </select>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // 3. Cadastrar Médico (POST /api/medicos)
+    document.getElementById('medicoForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const novoMedico = {
+        nome: document.getElementById('nome').value,
+        rm: document.getElementById('rm').value,
+        especialidade: document.getElementById('especialidade').value,
+        status: document.getElementById('status').value
+      };
+
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: getHeaders(),
+          body: JSON.stringify(novoMedico)
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.erro || 'Erro ao guardar médico');
+        }
+
+        document.getElementById('medicoForm').reset();
+        carregarMedicos();
+      } catch (err) {
+        alert('Atenção: ' + err.message);
+      }
+    });
+
+    // 4. Alterar Status (PATCH /api/medicos/:id/status)
+    async function alterarStatus(id, novoStatus) {
+      try {
+        const response = await fetch(`${API_URL}/${id}/status`, {
+          method: 'PATCH',
+          headers: getHeaders(),
+          body: JSON.stringify({ status: novoStatus })
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.erro || 'Erro ao atualizar status');
+        }
+
+        carregarMedicos();
+      } catch (err) {
+        alert('Atenção: ' + err.message);
+      }
+    }
+
+    // Executa a listagem ao abrir
+    carregarMedicos();
+  </script>
+</body>
+</html>
